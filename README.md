@@ -1,5 +1,4 @@
 - 👋 Greetings, my GitHub's page visitor, I’m @athatheo
-- 👀 I think that self-supervised learning is a smart concept.
 - 👀 Space is fun. Check gitlab.com/acubesat!
 - 🌱 Currently in an AI M.Sc.
 - 🌱 Looking for fun open-source projects and/or internships!
