@@ -1,7 +1,6 @@
 - 👋 Greetings, my GitHub's page visitor, I’m @athatheo
 - 👀 Space is fun. Check gitlab.com/acubesat!
-- 🌱 Currently in an AI M.Sc.
-- 🌱 Looking for fun open-source projects and/or internships!
+- Wanna play a fun AI game? Check gandalf.lakera.ai
 - 📫 How to reach me :O Well, just e-mail me!
 
 <!---
