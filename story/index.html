@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Athanasios Theocharis: the story so far</title>
+<style>
+  @font-face { font-family: Inter; font-weight: 400; src: url(../fonts/inter-400.woff2) format("woff2"); }
+  @font-face { font-family: Inter; font-weight: 600; src: url(../fonts/inter-600.woff2) format("woff2"); }
+  html, body { margin: 0; height: 100%; background: #0d1117; }
+  body { display: grid; place-items: center; }
+  canvas { width: min(100vw, 1280px); image-rendering: pixelated; display: block; }
+</style>
+</head>
+<body>
+<script type="module">
+  import { DURATION, FONTS, SCALE, seek, timeIn } from "./story.js";
+  import { W, H, art, g, canvas, rect } from "./pixel.js";
+  import { person, cyclist, THANOS, PEOPLE } from "./cast.js";
+
+  const film = document.body.appendChild(canvas(W * SCALE, H * SCALE));
+  window.DURATION = DURATION;
+  window.timeIn = timeIn;
+  window.still = (t) => {
+    seek(film, t);
+    return film.toDataURL("image/png");
+  };
+  // Several moments at half size, two to a row, to check scenes at a glance.
+  window.sheet = (times) => {
+    const [w, h] = [(W * SCALE) / 2, (H * SCALE) / 2];
+    const out = canvas(w * 2, Math.ceil(times.length / 2) * h);
+    times.forEach((t, i) => {
+      seek(film, t);
+      out.getContext("2d").drawImage(film, (i % 2) * w, Math.floor(i / 2) * h, w, h);
+    });
+    return out.toDataURL("image/png");
+  };
+  // A still without captions for a project card: `rows` art rows from `top`, `at` seconds into
+  // the scene drawn by `scene`.
+  window.poster = (scene, at, top, rows) => {
+    seek(film, timeIn(scene, at), { captions: false });
+    const out = canvas(W * SCALE, rows * SCALE);
+    out.getContext("2d").drawImage(film, 0, top * SCALE, out.width, out.height, 0, 0, out.width, out.height);
+    return out.toDataURL("image/png");
+  };
+  // Everyone in every pose, up close.
+  window.castSheet = () => {
+    g.clearRect(0, 0, W, H);
+    rect(0, 0, W, H, "#3a4150");
+    const poses = [["stand", 0], ["walk", 0], ["walk", 0.125], ["sit", 0], ["type", 0], ["cheer", 0], ["point", 0], ["wave", 0], ["hold", 0]];
+    poses.forEach(([pose, t], i) => person(THANOS, 4 + i * 12, 22, pose, t));
+    PEOPLE.forEach((who, i) => person(who, 4 + i * 12, 46, "stand"));
+    PEOPLE.forEach((who, i) => person(who, 4 + i * 12, 70, "walk", i * 0.125, true));
+    cyclist(THANOS, 4, 96, 0);
+    const zoom = 8;
+    const out = canvas(160 * zoom, 100 * zoom);
+    const ctx = out.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(art, 0, 0, 160, 100, 0, 0, out.width, out.height);
+    return out.toDataURL("image/png");
+  };
+  // Canvas text doesn't make the browser fetch a font, so load both faces before drawing.
+  window.ready = Promise.all(Object.values(FONTS).map((f) => document.fonts.load(f)));
+  await window.ready;
+  // ?t=12.5 shows that moment still; otherwise the film plays.
+  const at = Number.parseFloat(new URLSearchParams(location.search).get("t") ?? "");
+  if (Number.isFinite(at)) seek(film, at);
+  else {
+    const t0 = performance.now();
+    const loop = (now) => {
+      seek(film, (now - t0) / 1000);
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+  }
+</script>
+</body>
+</html>
